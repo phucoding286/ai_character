@@ -34,21 +34,29 @@ class CharacterAI:
         char = self.char_id
         client = aiocai.Client(self.token_account)
         me = await client.get_me()
-        
-        chat = await client.connect()
-        new, answer = await chat.new_chat(char, me.id)
-
-        # print(f'{answer.name}: {answer.text}')
-        # print("Đang lắng nghe...")
 
         while True:
-            if self.check_input():
-                text = self.input
-            else:
-                continue
+            try:
+
+                chat = await client.connect()
+                new, answer = await chat.new_chat(char, me.id)
+                text = None
+
+                while True:
+                    if self.check_input():
+                        text = self.input
+                        break
+                    else:
+                        await asyncio.sleep(0.5)
+                        continue
             
-            message = await chat.send_message(char, new.chat_id, text)
-            self.output = message.text
+                message = await chat.send_message(char, new.chat_id, text)
+                self.output = message.text
+            
+            except:
+                await asyncio.sleep(0.5)
+                print("had error will reconnect again")
+                continue
 
     def run_main(self):
         asyncio.set_event_loop(self.event_loop)
