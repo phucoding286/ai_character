@@ -11,6 +11,7 @@ class CharacterAI:
         self.token_account = token_account
         self.output = None
         self.input = None
+        self.error = False
         self.check_in = self.input
         self.check_out = self.output
         self.event_loop = asyncio.new_event_loop()
@@ -31,17 +32,22 @@ class CharacterAI:
             return False
     
     async def main(self):
-        char = self.char_id
-        client = aiocai.Client(self.token_account)
-        me = await client.get_me()
-
         while True:
             try:
 
+                char = self.char_id
+                client = aiocai.Client(self.token_account)
+                me = await client.get_me()
                 chat = await client.connect()
                 new, answer = await chat.new_chat(char, me.id)
 
                 while True:
+                    if self.error == True:
+                        text = self.input
+                        message = await chat.send_message(char, new.chat_id, text)
+                        self.output = message.text
+                        self.error = False
+
                     if self.check_input():
                         text = self.input
                         message = await chat.send_message(char, new.chat_id, text)
@@ -54,6 +60,7 @@ class CharacterAI:
             except:
                 await asyncio.sleep(0.5)
                 print("had error will reconnect again")
+                self.error = True
                 continue
 
     def run_main(self):
