@@ -12,14 +12,16 @@ class CharacterAI:
         self.output = None
         self.input = None
         self.error = False
+        self.send_msg_chk = False
         self.check_in = self.input
         self.check_out = self.output
         self.event_loop = asyncio.new_event_loop()
         threading.Thread(target=self.run_main, daemon=True).start()
 
     def check_input(self):
-        if self.input != self.check_in:
+        if self.send_msg_chk:
             self.check_in = self.input
+            self.send_msg_chk = False
             return True
         else:
             return False
@@ -69,6 +71,7 @@ class CharacterAI:
     
     def send_message(self, inp):
         self.input = inp
+        self.send_msg_chk = True
         while True:
             if self.check_output():
                 break
