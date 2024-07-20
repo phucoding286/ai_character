@@ -40,18 +40,16 @@ class CharacterAI:
 
                 chat = await client.connect()
                 new, answer = await chat.new_chat(char, me.id)
-                text = None
 
                 while True:
                     if self.check_input():
                         text = self.input
-                        break
+                        message = await chat.send_message(char, new.chat_id, text)
+                        self.output = message.text
+
                     else:
                         await asyncio.sleep(0.5)
                         continue
-            
-                message = await chat.send_message(char, new.chat_id, text)
-                self.output = message.text
             
             except:
                 await asyncio.sleep(0.5)
